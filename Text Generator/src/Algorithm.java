@@ -13,6 +13,7 @@ public class Algorithm {
 	private int retindex;
 	
 	private static final int SENTENCELENGTH = 10;
+	private static final int MAXTRIAL = 3;
 	
 	public Algorithm() {
 		wordmap= new HashMap<Integer, Word>();
@@ -56,19 +57,29 @@ public class Algorithm {
 		LinkedList<Word> wdList = new LinkedList<Word>();
 		LinkedList<Node> nodeList = new LinkedList<Node>();
 		
-		if(!indexmap.containsKey(str))
-			return new Sentence(wdList, true);
+		//random query if not found
+		if(!indexmap.containsKey(str)) {
+			System.out.print(str+" not found, ");
+			str = wordmap.get(rnd.nextInt(wordmap.size())).getForm();
+			System.out.println("use "+str+" instead");
+		}
 		
 		//go to root
 		int stri = indexmap.get(str);
 		Word strw = wordmap.get(stri);
 		int listSize = 0;
 		
+		int trial = 0;
 		while(!strw.getFatherForm().contains(new Child("ROOT", 0))) {
 			Child father = sem.getFatherForm(strw.getForm());
+			if(trial < MAXTRIAL && nodeList.contains(new Node(father.form,listSize+1,father.distance))) {
+				trial++;
+				continue;
+			}
 			nodeList.add(new Node(strw.getForm(),listSize+1,father.distance));
 			stri = indexmap.get(father.form);
 			strw = wordmap.get(stri);
+			trial=0;
 			listSize++;
 			
 			if(listSize>=SENTENCELENGTH) {
@@ -76,14 +87,32 @@ public class Algorithm {
 			}
 		}
 		
+		//direct to root
+		Child father = new Child("DUMMY", 5-rnd.nextInt(10));
+		for(Child f : strw.getFatherForm()) {
+			if(f.form.equals("ROOT")) {
+				father=f;
+				break;
+			}
+		}
+		nodeList.add(new Node(strw.getForm(),listSize+1,father.distance));
+		listSize++;
+		
 		//add root
 		nodeList.add(new Node("ROOT", -1, rnd.nextInt()));
+		listSize++;
 		
 		//randomly add children
-		while(listSize<SENTENCELENGTH) {
+		trial=0;
+		while(listSize<=SENTENCELENGTH) {
 			int listindex = rnd.nextInt(nodeList.size());
 			Child child = sem.getChildForm(nodeList.get(listindex).form);
+			if(trial < MAXTRIAL && nodeList.contains(new Node(child.form,listindex,child.distance))) {
+				trial++;
+				continue;
+			}
 			nodeList.add(new Node(child.form,listindex,child.distance));
+			trial=0;
 			listSize++;
 		}
 		
@@ -115,7 +144,7 @@ public class Algorithm {
 		Word rootword = wordmap.get(indexmap.get(root.form));
 		//left
 		for(Node lc : root.childList) {
-			if(nodeList.get(new Integer(lc.form)).distance<0) {
+			if(nodeList.get(new Integer(lc.form)).distance<=0) {
 				nodeProcess(new Integer(lc.form),wdList,nodeList, current);
 			}
 		}
@@ -152,5 +181,10 @@ class Node implements Comparable {
 	@Override
 	public int compareTo(Object o) {
 		return this.distance-((Node)o).distance;
+	}
+	
+	public boolean equals( Object o2 )
+	{
+	   return this.form.equals(((Node)o2).form);
 	}
 }

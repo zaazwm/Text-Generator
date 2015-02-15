@@ -179,8 +179,15 @@ public class Word {
 	
 	public Word addFather(String form, int distance) {
 		distance+=(3-ApplicationControl.rnd.nextInt(6));
-		if(_faform.contains(new Child(form, distance)))
+		if(_faform.contains(new Child(form, distance))) {
+			for(Child c : _faform) {
+				if(c.form.equals(form)) {
+					c.distance=(c.distance*c.frequency+distance)/(c.frequency+1);
+					c.frequency++;
+				}
+			}
 			return this;
+		}
 		_faform.add(new Child(form, distance));
 		return this;
 	}
@@ -191,8 +198,15 @@ public class Word {
 	
 	public Word addChild(String form, int distance) {
 		distance+=(3-ApplicationControl.rnd.nextInt(6));
-		if(_chform.contains(new Child(form, distance)))
+		if(_chform.contains(new Child(form, distance))) {
+			for(Child c : _chform) {
+				if(c.form.equals(form)) {
+					c.distance=(c.distance*c.frequency+distance)/(c.frequency+1);
+					c.frequency++;
+				}
+			}
 			return this;
+		}
 		_chform.add(new Child(form, distance));
 		return this;
 	}
@@ -207,9 +221,11 @@ public class Word {
 class Child {
 	public String form;
 	public int distance;
+	public int frequency;
 	public Child(String form, int distance) {
 		this.form=form;
 		this.distance=distance;
+		frequency=1;
 	}
 	
 	public boolean equals( Object o2 )

@@ -41,8 +41,20 @@ public class NaiveSemantics implements SemanticInterface{
 			}
 			return new Child(ret, 10-rnd.nextInt(20));
 		}
-		return sl[rnd.nextInt(sl.length)];
-		
+		int freqSum=0;
+		for(Child c : sl) {
+			freqSum+=c.frequency;
+		}
+		int target = rnd.nextInt(freqSum);
+		int ret=0;
+		for(Child c : sl) {
+			target-=c.frequency;
+			if(target<=0)
+				break;
+			ret++;
+		}
+		//return sl[rnd.nextInt(sl.length)];
+		return sl[ret];
 	}
 
 	@Override
@@ -72,7 +84,20 @@ public class NaiveSemantics implements SemanticInterface{
 			}
 			return new Child(ret, 10-rnd.nextInt(20));
 		}
-		return sl[rnd.nextInt(sl.length)];
+		int freqSum=0;
+		for(Child c : sl) {
+			freqSum+=c.frequency;
+		}
+		int target = rnd.nextInt(freqSum);
+		int ret=0;
+		for(Child c : sl) {
+			target-=c.frequency;
+			if(target<=0)
+				break;
+			ret++;
+		}
+		//return sl[rnd.nextInt(sl.length)];
+		return sl[ret];
 	}
 
 }

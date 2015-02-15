@@ -8,12 +8,22 @@ public class ApplicationControl {
 	public static Random rnd = new Random();
 	
 	public static void runCML(String file) throws IOException {
-		Reader r = new Reader(file);
+		Reader r;
+		if(file.endsWith("conll06")) {
+			r = new Reader06(file);
+		}
+		else
+			r = new Reader(file);
 		//Reader06 r = new Reader06(file);
 		
 		Algorithm algo = new Algorithm();
 		while(r.hasNext()) {
-			Sentence s = r.readNext();
+			Sentence s;
+			if(r instanceof Reader06)
+				s = ((Reader06)r).readNext();
+			else
+				s = r.readNext();
+			
 			for(Word w : s.getWdList()) {
 				algo.addIndex(w);
 				algo.addWord(w);
