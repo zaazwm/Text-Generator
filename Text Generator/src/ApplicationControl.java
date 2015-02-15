@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.LinkedList;
 import java.util.Random;
 
 
@@ -8,6 +9,8 @@ public class ApplicationControl {
 	public static Random rnd = new Random();
 	
 	public static final int TREESETSIZE = 100;
+	
+	public static LinkedList<String> tagList = new LinkedList<String>();
 	
 	public static void runCML(String file) throws IOException {
 		Reader r;
@@ -17,7 +20,7 @@ public class ApplicationControl {
 		else
 			r = new Reader(file);
 		//Reader06 r = new Reader06(file);
-		
+		int preprocessing=0;
 		Algorithm algo = new Algorithm();
 		while(r.hasNext()) {
 			Sentence s;
@@ -29,14 +32,22 @@ public class ApplicationControl {
 			for(Word w : s.getWdList()) {
 				algo.addIndex(w);
 				algo.addWord(w);
+				if(w.getHead()!=-1)
+					algo.addPattern(w, s.getWdList().get(w.getHead()));
 			}
 			for(Word w : s.getWdList()) {
 				if(w.getHead()==-1)
 					continue;
 				String headform = s.getWdList().get(w.getHead()).getForm();
-				algo.addFather(w, headform, w.getID()-w.getHead());
-				algo.addChild(s.getWdList().get(w.getHead()), w.getForm(), w.getID()-w.getHead());
+				algo.addFather(w, headform, w.getRel(), w.getID()-w.getHead());
+				algo.addChild(s.getWdList().get(w.getHead()), w.getForm(), s.getWdList().get(w.getHead()).getRel(), w.getID()-w.getHead());
+				if(!tagList.contains(w.getRel()))
+					tagList.add(w.getRel());
 			}
+			algo.savePattern();
+			preprocessing++;
+			if(preprocessing%1000==0)
+				System.out.println(preprocessing + " sentences readed");
 		}
 		
 		boolean mark=true;

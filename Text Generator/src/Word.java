@@ -177,9 +177,9 @@ public class Word {
 		this._tag = tag;
 	}
 	
-	public Word addFather(String form, int distance) {
+	public Word addFather(String form, String tag, int distance) {
 		distance+=(3-ApplicationControl.rnd.nextInt(6));
-		if(_faform.contains(new Child(form, distance))) {
+		if(_faform.contains(new Child(form, tag, distance))) {
 			for(Child c : _faform) {
 				if(c.form.equals(form)) {
 					c.distance=(c.distance*c.frequency+distance)/(c.frequency+1);
@@ -188,7 +188,7 @@ public class Word {
 			}
 			return this;
 		}
-		_faform.add(new Child(form, distance));
+		_faform.add(new Child(form, tag, distance));
 		return this;
 	}
 	
@@ -196,9 +196,9 @@ public class Word {
 		return _faform;
 	}
 	
-	public Word addChild(String form, int distance) {
+	public Word addChild(String form, String tag, int distance) {
 		distance+=(3-ApplicationControl.rnd.nextInt(6));
-		if(_chform.contains(new Child(form, distance))) {
+		if(_chform.contains(new Child(form, tag, distance))) {
 			for(Child c : _chform) {
 				if(c.form.equals(form)) {
 					c.distance=(c.distance*c.frequency+distance)/(c.frequency+1);
@@ -207,7 +207,7 @@ public class Word {
 			}
 			return this;
 		}
-		_chform.add(new Child(form, distance));
+		_chform.add(new Child(form, tag, distance));
 		return this;
 	}
 	
@@ -220,16 +220,20 @@ public class Word {
 
 class Child {
 	public String form;
+	public String tag;
 	public int distance;
 	public int frequency;
-	public Child(String form, int distance) {
+	public Child(String form, String tag, int distance) {
 		this.form=form;
+		this.tag=tag;
 		this.distance=distance;
 		frequency=1;
 	}
 	
 	public boolean equals( Object o2 )
 	{
-	   return this.form.equals(((Child)o2).form);
+		if(this.form.equals("ROOT") && ((Child)o2).form.equals("ROOT"))
+			return true;
+	    return (this.form.equals(((Child)o2).form)&&this.tag.equals(((Child)o2).tag));
 	}
 }
