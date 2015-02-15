@@ -62,6 +62,8 @@ public class ApplicationControl {
 						outindex=i;
 					}
 				}
+				if(!out[outindex].getQuery().equals(str))
+					System.out.println(str+" not found, "+"use "+out[outindex].getQuery()+" instead");
 				for(Word w : out[outindex].getWdList()) {
 					if(w.getForm().equals("ROOT"))
 						continue;

@@ -3,6 +3,7 @@ import java.util.LinkedList;
 
 public class Sentence {
 	private LinkedList<Word> wdList;
+	private String query;
 	//to save words in a sentence
 	public Sentence(LinkedList<Word> wl) {
 		wdList=wl;
@@ -25,5 +26,13 @@ public class Sentence {
 	public Sentence clone() {
 		Sentence ret = new Sentence(this.getWdList(),true);
 		return ret;
+	}
+
+	public String getQuery() {
+		return query;
+	}
+
+	public void setQuery(String query) {
+		this.query = query;
 	}
 }

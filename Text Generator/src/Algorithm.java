@@ -59,9 +59,9 @@ public class Algorithm {
 		
 		//random query if not found
 		if(!indexmap.containsKey(str)) {
-			System.out.print(str+" not found, ");
+			//System.out.print(str+" not found, ");
 			str = wordmap.get(rnd.nextInt(wordmap.size())).getForm();
-			System.out.println("use "+str+" instead");
+			//System.out.println("use "+str+" instead");
 		}
 		
 		//go to root
@@ -136,7 +136,9 @@ public class Algorithm {
 		nodeProcess(rootindex, wdList, nodeList, -1);
 		
 		
-		return new Sentence(wdList, true);
+		Sentence ret = new Sentence(wdList, true);
+		ret.setQuery(str);
+		return ret;
 	}
 	
 	public void nodeProcess(int current, LinkedList<Word> wdList, LinkedList<Node> nodeList, int head) {
