@@ -39,7 +39,7 @@ public class NaiveSemantics implements SemanticInterface{
 			while(ret.equals("ROOT")) {
 				ret = wordmap.get(rnd.nextInt(wordmap.size())).getForm();
 			}
-			return new Child(ret, rnd.nextBoolean());
+			return new Child(ret, 10-rnd.nextInt(20));
 		}
 		return sl[rnd.nextInt(sl.length)];
 		
@@ -70,7 +70,7 @@ public class NaiveSemantics implements SemanticInterface{
 			while(ret.equals("ROOT")) {
 				ret = wordmap.get(rnd.nextInt(wordmap.size())).getForm();
 			}
-			return new Child(ret, rnd.nextBoolean());
+			return new Child(ret, 10-rnd.nextInt(20));
 		}
 		return sl[rnd.nextInt(sl.length)];
 	}

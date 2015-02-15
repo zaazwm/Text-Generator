@@ -1,3 +1,4 @@
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
@@ -35,12 +36,12 @@ public class Algorithm {
 		}
 	}
 	
-	public void addFather(Word w, String father, boolean left) {
-		wordmap.put(indexmap.get(w.getForm()), w.addFather(father, left));
+	public void addFather(Word w, String father, int distance) {
+		wordmap.put(indexmap.get(w.getForm()), w.addFather(father, distance));
 	}
 	
-	public void addChild(Word w, String child, boolean left) {
-		wordmap.put(indexmap.get(w.getForm()), w.addChild(child, left));
+	public void addChild(Word w, String child, int distance) {
+		wordmap.put(indexmap.get(w.getForm()), w.addChild(child, distance));
 	}
 	
 	public HashMap<Integer, Word> getWordMap() {
@@ -60,9 +61,9 @@ public class Algorithm {
 		Word strw = wordmap.get(stri);
 		int listSize = 0;
 		
-		while(!strw.getFatherForm().contains(new Child("ROOT", true))) {
+		while(!strw.getFatherForm().contains(new Child("ROOT", 0))) {
 			Child father = sem.getFatherForm(strw.getForm());
-			nodeList.add(new Node(strw.getForm(),listSize+1,father.left));
+			nodeList.add(new Node(strw.getForm(),listSize+1,father.distance));
 			stri = indexmap.get(father.form);
 			strw = wordmap.get(stri);
 			listSize++;
@@ -73,13 +74,13 @@ public class Algorithm {
 		}
 		
 		//add root
-		nodeList.add(new Node("ROOT", -1, rnd.nextBoolean()));
+		nodeList.add(new Node("ROOT", -1, rnd.nextInt()));
 		
 		//randomly add children
 		while(listSize<SENTENCELENGTH) {
 			int listindex = rnd.nextInt(nodeList.size());
 			Child child = sem.getChildForm(nodeList.get(listindex).form);
-			nodeList.add(new Node(child.form,listindex,child.left));
+			nodeList.add(new Node(child.form,listindex,child.distance));
 			listSize++;
 		}
 		
@@ -90,9 +91,10 @@ public class Algorithm {
 			//add children
 			for(int j=0;j<nodeList.size();j++) {
 				if(nodeList.get(j).head==i) {
-					nodeList.get(i).addChild(j);
+					nodeList.get(i).addChild(new Node(new Integer(j).toString(),i,nodeList.get(j).distance));
 				}
 			}
+			Collections.sort(nodeList.get(i).childList);
 			if(nodeList.get(i).head==-1)
 				rootindex=i;
 		}
@@ -109,17 +111,17 @@ public class Algorithm {
 		Node root = nodeList.get(current);
 		Word rootword = wordmap.get(indexmap.get(root.form));
 		//left
-		for(int lc : root.childList) {
-			if(nodeList.get(lc).left) {
-				nodeProcess(lc,wdList,nodeList, current);
+		for(Node lc : root.childList) {
+			if(nodeList.get(new Integer(lc.form)).distance<0) {
+				nodeProcess(new Integer(lc.form),wdList,nodeList, current);
 			}
 		}
 		//self
 		wdList.add(new Word(retindex,rootword.getForm(),rootword.getLemma(),rootword.getPos(),head));
 		//right
-		for(int lc : root.childList) {
-			if(!nodeList.get(lc).left) {
-				nodeProcess(lc,wdList,nodeList, current);
+		for(Node lc : root.childList) {
+			if(nodeList.get(new Integer(lc.form)).distance>0) {
+				nodeProcess(new Integer(lc.form),wdList,nodeList, current);
 			}
 		}
 	}
@@ -127,20 +129,25 @@ public class Algorithm {
 }
 
 
-class Node {
+class Node implements Comparable {
 	public String form;
 	public int head;
-	public boolean left;
-	public LinkedList<Integer> childList;
+	public int distance;
+	public LinkedList<Node> childList;
 	
-	public Node(String form, int head, boolean left) {
+	public Node(String form, int head, int distance) {
 		this.form=form;
 		this.head=head;
-		this.left=left;
-		childList = new LinkedList<Integer>();
+		this.distance=distance;
+		childList = new LinkedList<Node>();
 	}
 	
-	public void addChild(int i) {
+	public void addChild(Node i) {
 		childList.add(i);
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		return this.distance-((Node)o).distance;
 	}
 }

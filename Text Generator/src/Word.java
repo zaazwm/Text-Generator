@@ -177,10 +177,11 @@ public class Word {
 		this._tag = tag;
 	}
 	
-	public Word addFather(String form, boolean left) {
-		if(_faform.contains(new Child(form, left)))
+	public Word addFather(String form, int distance) {
+		distance+=(3-ApplicationControl.rnd.nextInt(6));
+		if(_faform.contains(new Child(form, distance)))
 			return this;
-		_faform.add(new Child(form, left));
+		_faform.add(new Child(form, distance));
 		return this;
 	}
 	
@@ -188,10 +189,11 @@ public class Word {
 		return _faform;
 	}
 	
-	public Word addChild(String form, boolean left) {
-		if(_chform.contains(new Child(form, left)))
+	public Word addChild(String form, int distance) {
+		distance+=(3-ApplicationControl.rnd.nextInt(6));
+		if(_chform.contains(new Child(form, distance)))
 			return this;
-		_chform.add(new Child(form, left));
+		_chform.add(new Child(form, distance));
 		return this;
 	}
 	
@@ -204,10 +206,10 @@ public class Word {
 
 class Child {
 	public String form;
-	public boolean left;
-	public Child(String form, boolean left) {
+	public int distance;
+	public Child(String form, int distance) {
 		this.form=form;
-		this.left=left;
+		this.distance=distance;
 	}
 	
 	public boolean equals( Object o2 )

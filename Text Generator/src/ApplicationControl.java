@@ -1,9 +1,12 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Random;
 
 
 public class ApplicationControl {
+	public static Random rnd = new Random();
+	
 	public static void runCML(String file) throws IOException {
 		Reader r = new Reader(file);
 		
@@ -18,8 +21,8 @@ public class ApplicationControl {
 				if(w.getHead()==-1)
 					continue;
 				String headform = s.getWdList().get(w.getHead()).getForm();
-				algo.addFather(w, headform, w.getID()<w.getHead());
-				algo.addChild(s.getWdList().get(w.getHead()), w.getForm(), w.getID()<w.getHead());
+				algo.addFather(w, headform, w.getID()-w.getHead());
+				algo.addChild(s.getWdList().get(w.getHead()), w.getForm(), w.getID()-w.getHead());
 			}
 		}
 		
