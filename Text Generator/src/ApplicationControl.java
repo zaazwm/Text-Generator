@@ -7,6 +7,8 @@ import java.util.Random;
 public class ApplicationControl {
 	public static Random rnd = new Random();
 	
+	public static final int TREESETSIZE = 100;
+	
 	public static void runCML(String file) throws IOException {
 		Reader r;
 		if(file.endsWith("conll06")) {
@@ -48,8 +50,19 @@ public class ApplicationControl {
 			else {
 				//System.out.println("readed "+str);
 				//System.out.println("if contains? "+algo.getIndexMap().containsKey(str));
-				Sentence out = algo.generateTree(str);
-				for(Word w : out.getWdList()) {
+				Sentence[] out = new Sentence[TREESETSIZE];
+				for(int i=0;i<TREESETSIZE;i++)
+					out[i]=algo.generateTree(str);
+				int outindex = -1;
+				int outscore = Integer.MIN_VALUE;
+				for(int i=0;i<TREESETSIZE;i++) {
+					int curscore=algo.getSemantic().rankSentence(out[i]);
+					if(curscore>outscore) {
+						outscore=curscore;
+						outindex=i;
+					}
+				}
+				for(Word w : out[outindex].getWdList()) {
 					if(w.getForm().equals("ROOT"))
 						continue;
 					System.out.print(w.getForm());

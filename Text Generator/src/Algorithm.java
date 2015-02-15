@@ -158,6 +158,10 @@ public class Algorithm {
 		}
 	}
 	
+	public SemanticInterface getSemantic() {
+		return sem;
+	}
+	
 }
 
 

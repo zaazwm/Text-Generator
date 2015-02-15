@@ -100,4 +100,9 @@ public class NaiveSemantics implements SemanticInterface{
 		return sl[ret];
 	}
 
+	@Override
+	public int rankSentence(Sentence s) {
+		return rnd.nextInt(10000);
+	}
+
 }
