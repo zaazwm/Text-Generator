@@ -20,10 +20,10 @@ public class Reader {
 	private static int fieldID=0;
 	private static int fieldForm=1;
 	private static int fieldLemma=2;
-	private static int fieldPos=3;
-	private static int fieldMorph=5;
-	private static int fieldHead=6;
-	private static int fieldRel=7;
+	private static int fieldPos=4;
+	private static int fieldMorph=6;
+	private static int fieldHead=8;
+	private static int fieldRel=10;
 	
 	public Reader(String path) throws FileNotFoundException, UnsupportedEncodingException {
 		this.path=path;

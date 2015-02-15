@@ -14,6 +14,8 @@ public class Word {
 	private int _MPCID;
 	private int _MPChead;
 	private String _tag;
+	private LinkedList<Child> _chform;
+	private LinkedList<Child> _faform;
 	//to save information of each word/token
 	public Word(int id, String form, String lemma, String pos, String morph, int head, String rel) {
 		_ID=id;
@@ -27,6 +29,8 @@ public class Word {
 		_children=new LinkedList<Integer>();
 		_MPCID=-1;
 		_MPChead=-1;
+		_chform=new LinkedList<Child>();
+		_faform=new LinkedList<Child>();
 	}
 	
 	public Word(int id, String form, String lemma, String pos, int head, String rel) {
@@ -41,6 +45,8 @@ public class Word {
 		_children=new LinkedList<Integer>();
 		_MPCID=-1;
 		_MPChead=-1;
+		_chform=new LinkedList<Child>();
+		_faform=new LinkedList<Child>();
 	}
 	
 	public Word(int id, String form, String lemma, String pos, int head) {
@@ -55,6 +61,8 @@ public class Word {
 		_children=new LinkedList<Integer>();
 		_MPCID=-1;
 		_MPChead=-1;
+		_chform=new LinkedList<Child>();
+		_faform=new LinkedList<Child>();
 	}
 	
 	public Word(int id, String form, String lemma, String pos, int head, String tag, boolean marker) {
@@ -69,6 +77,8 @@ public class Word {
 		_children=new LinkedList<Integer>();
 		_MPCID=-1;
 		_MPChead=-1;
+		_chform=new LinkedList<Child>();
+		_faform=new LinkedList<Child>();
 	}
 
 	public int getID() {
@@ -167,4 +177,41 @@ public class Word {
 		this._tag = tag;
 	}
 	
+	public Word addFather(String form, boolean left) {
+		if(_faform.contains(new Child(form, left)))
+			return this;
+		_faform.add(new Child(form, left));
+		return this;
+	}
+	
+	public LinkedList<Child> getFatherForm() {
+		return _faform;
+	}
+	
+	public Word addChild(String form, boolean left) {
+		if(_chform.contains(new Child(form, left)))
+			return this;
+		_chform.add(new Child(form, left));
+		return this;
+	}
+	
+	public LinkedList<Child> getChildForm() {
+		return _chform;
+	}
+	
+	
+}
+
+class Child {
+	public String form;
+	public boolean left;
+	public Child(String form, boolean left) {
+		this.form=form;
+		this.left=left;
+	}
+	
+	public boolean equals( Object o2 )
+	{
+	   return this.form.equals(((Child)o2).form);
+	}
 }
