@@ -6,6 +6,7 @@ import java.util.Random;
 
 
 public class ApplicationControl {
+    # Yuhang Jin
 	public static Random rnd = new Random();
 	
 	public static final int TREESETSIZE = 100;
