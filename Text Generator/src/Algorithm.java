@@ -56,6 +56,9 @@ public class Algorithm {
 		LinkedList<Word> wdList = new LinkedList<Word>();
 		LinkedList<Node> nodeList = new LinkedList<Node>();
 		
+		if(!indexmap.containsKey(str))
+			return new Sentence(wdList, true);
+		
 		//go to root
 		int stri = indexmap.get(str);
 		Word strw = wordmap.get(stri);

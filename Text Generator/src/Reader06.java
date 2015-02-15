@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import org.apache.commons.lang3.StringUtils;
 
 @SuppressWarnings("unused")
-public class Reader {
+public class Reader06 extends Reader {
 	private String path;
 	private FileInputStream fis;
 	private InputStreamReader isr;
@@ -20,16 +20,12 @@ public class Reader {
 	private static int fieldID=0;
 	private static int fieldForm=1;
 	private static int fieldLemma=2;
-	private static int fieldPos=4;
-	private static int fieldMorph=6;
-	private static int fieldHead=8;
-	private static int fieldRel=10;
+	private static int fieldPos=3;
+	private static int fieldMorph=5;
+	private static int fieldHead=6;
+	private static int fieldRel=7;
 	
-	public Reader() {
-		
-	}
-	
-	public Reader(String path) throws FileNotFoundException, UnsupportedEncodingException {
+	public Reader06(String path) throws FileNotFoundException, UnsupportedEncodingException {
 		this.path=path;
 		fis=new FileInputStream(path);
 		isr=new InputStreamReader(fis, "UTF-8");

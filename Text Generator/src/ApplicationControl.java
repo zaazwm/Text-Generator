@@ -9,6 +9,7 @@ public class ApplicationControl {
 	
 	public static void runCML(String file) throws IOException {
 		Reader r = new Reader(file);
+		//Reader06 r = new Reader06(file);
 		
 		Algorithm algo = new Algorithm();
 		while(r.hasNext()) {
@@ -42,6 +43,8 @@ public class ApplicationControl {
 					if(w.getForm().equals("ROOT"))
 						continue;
 					System.out.print(w.getForm());
+					if(r instanceof Reader06)
+						System.out.print(" ");
 				}
 				System.out.print("\n");
 			}
