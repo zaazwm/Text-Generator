@@ -218,6 +218,7 @@ public class Word {
 	
 }
 
+//used for saving child and father information
 class Child {
 	public String form;
 	public String tag;
@@ -235,5 +236,11 @@ class Child {
 		if(this.form.equals("ROOT") && ((Child)o2).form.equals("ROOT"))
 			return true;
 	    return (this.form.equals(((Child)o2).form)&&this.tag.equals(((Child)o2).tag));
+	}
+	
+	public Child getChildWithTag(String tag) {
+		Child ret = new Child(this.form, tag, this.distance);
+		ret.frequency=this.frequency;
+		return ret;
 	}
 }

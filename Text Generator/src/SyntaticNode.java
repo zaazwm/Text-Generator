@@ -20,17 +20,21 @@ public class SyntaticNode {
 		return spList.get(ApplicationControl.rnd.nextInt(spList.size()));
 	}
 	
+	//get pattern containing the tag
 	public SyntaticPattern getPattern(String containingTag) {
 		LinkedList<SyntaticPattern> tmpList = new LinkedList<SyntaticPattern>();
+		//if no valid tag, get random pattern
 		if(containingTag==null) {
-			containingTag = ApplicationControl.tagList.get(ApplicationControl.rnd.nextInt(ApplicationControl.tagList.size()));
+			//containingTag = ApplicationControl.tagList.get(ApplicationControl.rnd.nextInt(ApplicationControl.tagList.size()));
+			return getPattern();
 		}
 		for(SyntaticPattern sp : spList) {
 			if(sp.leftTags.contains(containingTag) || sp.rightTags.contains(containingTag))
 				tmpList.add(sp);
 		}
+		//if no containing pattern found, get random pattern
 		if(tmpList.size()<1)
-			return spList.get(ApplicationControl.rnd.nextInt(spList.size()));
+			return getPattern();
 		return tmpList.get(ApplicationControl.rnd.nextInt(tmpList.size()));
 	}
 	
@@ -52,7 +56,6 @@ public class SyntaticNode {
 class SyntaticPattern {
 	public LinkedList<String> leftTags;
 	public LinkedList<String> rightTags;
-	public int dummy;
 	public String form;
 	
 	public SyntaticPattern(String form) {
@@ -61,12 +64,18 @@ class SyntaticPattern {
 		this.form=form;
 	}
 	
-	public void addLeft(String tag) {
+	public SyntaticPattern addLeft(String tag) {
 		leftTags.add(tag);
+		return this;
 	}
 	
-	public void addRight(String tag) {
+	public SyntaticPattern addRight(String tag) {
 		rightTags.add(tag);
+		return this;
+	}
+	
+	public boolean contains(String tag) {
+		return (leftTags.contains(tag) || rightTags.contains(tag));
 	}
 	
 	public boolean equals( Object o2 )

@@ -11,8 +11,9 @@ public class Algorithm {
 	private SemanticInterface sem;
 	private Random rnd;
 	private int retindex;
-	private LinkedList<SyntaticNode> snList = new LinkedList<SyntaticNode>();
-	private LinkedList<SyntaticPattern> tmpSP = new LinkedList<SyntaticPattern>();
+	private HashMap<String, SyntaticNode> snmap;
+	private HashMap<String, SyntaticPattern> spmap;
+	private LinkedList<Sentence> sentenceList;
 	
 	private static final int SENTENCELENGTH = 15;
 	private static final int MAXTRIAL = 3;
@@ -20,11 +21,15 @@ public class Algorithm {
 	public Algorithm() {
 		wordmap= new HashMap<Integer, Word>();
 		indexmap = new HashMap<String, Integer>();
+		snmap = new HashMap<String, SyntaticNode>();
+		spmap = new HashMap<String, SyntaticPattern>();
 		indexnum=0;
 		sem=new NaiveSemantics(wordmap, indexmap);
 		rnd = new Random();
+		sentenceList = new LinkedList<Sentence>();
 	}
 	
+	//add word to index (combined with wordmap)
 	public void addIndex(Word w) {
 		if(!indexmap.containsKey(w.getForm())) {
 			indexmap.put(w.getForm(), indexnum);
@@ -32,54 +37,47 @@ public class Algorithm {
 		}
 	}
 	
+	//add word to wordmap, combined with indexmap
 	public void addWord(Word w) {
+		//add arc tag to the child-word for semantics
+		sem.addTag(w.getForm(), w.getRel());
 		if(!wordmap.containsKey(indexmap.get(w.getForm()))) {
 			wordmap.put(indexmap.get(w.getForm()), w);
 		}
 	}
 	
-	public void addPattern(Word w, Word father) {
-		SyntaticPattern sp = null;
-		for(SyntaticPattern ssp : tmpSP) {
-			if(ssp.dummy==father.getID()) {
-				sp=ssp;
-				break;
-			}
-		}
-		if(sp==null) {
-			sp=new SyntaticPattern(father.getForm());
-			sp.dummy=father.getID();
-			tmpSP.add(sp);
-		}
+	//save the readed sentence
+	public void saveSentence(Sentence s) {
+		sentenceList.add(s);
+	}
+	
+	//add pattern for subtree
+	public void addPattern(Word w, Word father,int si) {
+		if(!spmap.containsKey(""+si+"_"+father.getID()))
+			spmap.put(""+si+"_"+father.getID(), new SyntaticPattern(father.getForm()));
 		if(w.getID()<father.getID())
-			sp.leftTags.add(w.getRel());
+			spmap.put(""+si+"_"+father.getID(), spmap.get(""+si+"_"+father.getID()).addLeft(w.getRel()));
 		else
-			sp.rightTags.add(w.getRel());
+			spmap.put(""+si+"_"+father.getID(), spmap.get(""+si+"_"+father.getID()).addRight(w.getRel()));
+		
 	}
 	
+	//save the temp patterns to the list
 	public void savePattern() {
-		for(SyntaticPattern sp : tmpSP) {
-			SyntaticNode tmpSN = new SyntaticNode(sp.form);
-			if(snList.contains(tmpSN)) {
-				for(SyntaticNode snn : snList) {
-					if(snn.equals(tmpSN)) {
-						snn.addPattern(sp);
-						break;
-					}
-				}
-			}
-			else {
-				tmpSN.addPattern(sp);
-				snList.add(tmpSN);
-			}
+		for(String s : spmap.keySet()) {
+			SyntaticPattern sp = spmap.get(s);
+			if(!snmap.containsKey(sp.form))
+				snmap.put(sp.form, new SyntaticNode(sp.form));
+			snmap.put(sp.form, snmap.get(sp.form).addPattern(sp));
 		}
-		tmpSP.clear();
 	}
 	
+	//add father information to wordmap
 	public void addFather(Word w, String father, String tag, int distance) {
 		wordmap.put(indexmap.get(w.getForm()), w.addFather(father, tag, distance));
 	}
 	
+	//add child information to wordmap
 	public void addChild(Word w, String child, String tag, int distance) {
 		wordmap.put(indexmap.get(w.getForm()), w.addChild(child, tag, distance));
 	}
@@ -92,6 +90,7 @@ public class Algorithm {
 		return indexmap;
 	}
 
+	//generate completely random tree
 	public Sentence generateNaiveTree(String str) {
 		LinkedList<Word> wdList = new LinkedList<Word>();
 		LinkedList<Node> nodeList = new LinkedList<Node>();
@@ -103,7 +102,7 @@ public class Algorithm {
 			//System.out.println("use "+str+" instead");
 		}
 		
-		//go to root
+		//find the link to root
 		int stri = indexmap.get(str);
 		Word strw = wordmap.get(stri);
 		int listSize = 0;
@@ -126,7 +125,7 @@ public class Algorithm {
 			}
 		}
 		
-		//direct to root
+		//if the query is direct to root
 		Child father = new Child("DUMMY", null, 5-rnd.nextInt(10));
 		for(Child f : strw.getFatherForm()) {
 			if(f.form.equals("ROOT")) {
@@ -170,7 +169,7 @@ public class Algorithm {
 				rootindex=i;
 		}
 		
-		//compress the tree
+		//compress the tree using nodelist
 		retindex=0;
 		nodeProcess(rootindex, wdList, nodeList, -1);
 		
@@ -180,6 +179,7 @@ public class Algorithm {
 		return ret;
 	}
 	
+	//generate tree with pattern information
 	public Sentence generateTree(String str) {
 		LinkedList<Word> wdList = new LinkedList<Word>();
 		LinkedList<Node> nodeList = new LinkedList<Node>();
@@ -189,7 +189,7 @@ public class Algorithm {
 			str = wordmap.get(rnd.nextInt(wordmap.size())).getForm();
 		}
 		
-		//go to root
+		//find the link to root
 		int stri = indexmap.get(str);
 		Word strw = wordmap.get(stri);
 		int listSize = 0;
@@ -197,6 +197,7 @@ public class Algorithm {
 		int trial = 0;
 		while(!strw.getFatherForm().contains(new Child("ROOT", null, 0))) {
 			Child father = sem.getFatherForm(strw.getForm());
+			//if any duplicate word in the link, try again
 			if(trial < MAXTRIAL && nodeList.contains(new Node(father.form,listSize+1,null,father.distance))) {
 				trial++;
 				continue;
@@ -212,7 +213,7 @@ public class Algorithm {
 			}
 		}
 		
-		//direct to root
+		//if the query is direct to root
 		Child father = new Child("DUMMY", null, 5-rnd.nextInt(10));
 		for(Child f : strw.getFatherForm()) {
 			if(f.form.equals("ROOT")) {
@@ -231,6 +232,7 @@ public class Algorithm {
 		trial=0;
 		LinkedList<Integer> Exceplist = new LinkedList<Integer>();
 		while(trial <= MAXTRIAL && listSize<=SENTENCELENGTH) {
+			//too many exceptions
 			if(Exceplist.size()>=nodeList.size())
 				break;
 			int listindex = rnd.nextInt(nodeList.size());
@@ -249,10 +251,12 @@ public class Algorithm {
 				continue;
 			}
 			if(sn==null) {
+				//exception if no SyntaticNode found
 				Exceplist.add(listindex);
 				continue;
 			}
 			SyntaticPattern sp = sn.getPattern(cTag);
+			//adding nodes using pattern
 			for(String ltag : sp.leftTags) {
 				if(ltag.equals(cTag))
 					continue;
@@ -279,7 +283,7 @@ public class Algorithm {
 			}
 		}
 		
-		//sentence too short, use naive tree
+		//sentence too short, use naive tree (completely random nodes)
 		trial=0;
 		while(listSize<=SENTENCELENGTH) {
 			int listindex = rnd.nextInt(nodeList.size());
@@ -302,6 +306,7 @@ public class Algorithm {
 					nodeList.get(i).addChild(new Node(new Integer(j).toString(),i,null,nodeList.get(j).distance));
 				}
 			}
+			//sort with distance (-infinity -> infinity)
 			Collections.sort(nodeList.get(i).childList);
 			if(nodeList.get(i).head==-1)
 				rootindex=i;
@@ -318,11 +323,7 @@ public class Algorithm {
 	}
 	
 	public SyntaticNode findSNode(String form) {
-		for(SyntaticNode sn : snList) {
-			if(sn.getForm().equals(form))
-				return sn;
-		}
-		return null;
+		return snmap.get(form);
 	}
 	
 	public void nodeProcess(int current, LinkedList<Word> wdList, LinkedList<Node> nodeList, int head) {
@@ -335,7 +336,8 @@ public class Algorithm {
 			}
 		}
 		//self
-		wdList.add(new Word(retindex,rootword.getForm(),rootword.getLemma(),rootword.getPos(),head));
+		wdList.add(new Word(retindex,rootword.getForm(),rootword.getLemma(),rootword.getPos(),head,root.tag));
+		retindex++;
 		//right
 		for(Node lc : root.childList) {
 			if(nodeList.get(new Integer(lc.form)).distance>0) {

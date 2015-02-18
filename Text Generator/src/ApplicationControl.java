@@ -13,6 +13,7 @@ public class ApplicationControl {
 	public static LinkedList<String> tagList = new LinkedList<String>();
 	
 	public static void runCML(String file) throws IOException {
+		//file reader for conll09 files, also supporting conll06
 		Reader r;
 		if(file.endsWith("conll06")) {
 			r = new Reader06(file);
@@ -22,19 +23,22 @@ public class ApplicationControl {
 		//Reader06 r = new Reader06(file);
 		int preprocessing=0;
 		Algorithm algo = new Algorithm();
+		int sentenceindex = 0;
 		while(r.hasNext()) {
+			//read sentence
 			Sentence s;
 			if(r instanceof Reader06)
 				s = ((Reader06)r).readNext();
 			else
 				s = r.readNext();
-			
+			//add basic word information
 			for(Word w : s.getWdList()) {
 				algo.addIndex(w);
 				algo.addWord(w);
 				if(w.getHead()!=-1)
-					algo.addPattern(w, s.getWdList().get(w.getHead()));
+					algo.addPattern(w, s.getWdList().get(w.getHead()),sentenceindex);
 			}
+			//add tree information
 			for(Word w : s.getWdList()) {
 				if(w.getHead()==-1)
 					continue;
@@ -44,11 +48,15 @@ public class ApplicationControl {
 				if(!tagList.contains(w.getRel()))
 					tagList.add(w.getRel());
 			}
-			algo.savePattern();
+
+			algo.saveSentence(s);
+			sentenceindex++;
 			preprocessing++;
 			if(preprocessing%1000==0)
 				System.out.println(preprocessing + " sentences readed");
 		}
+		
+		algo.savePattern();
 		
 		boolean mark=true;
 		BufferedReader buf=new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
@@ -66,6 +74,7 @@ public class ApplicationControl {
 					out[i]=algo.generateTree(str);
 				int outindex = -1;
 				int outscore = Integer.MIN_VALUE;
+				//rand the generated trees
 				for(int i=0;i<TREESETSIZE;i++) {
 					int curscore=algo.getSemantic().rankSentence(out[i]);
 					if(curscore>outscore) {
@@ -75,14 +84,20 @@ public class ApplicationControl {
 				}
 				if(!out[outindex].getQuery().equals(str))
 					System.out.println(str+" not found, "+"use "+out[outindex].getQuery()+" instead");
+				String output = new String("\n");
+				System.out.println("index\tword\thead\ttag");
 				for(Word w : out[outindex].getWdList()) {
 					if(w.getForm().equals("ROOT"))
 						continue;
-					System.out.print(w.getForm());
-					if(r instanceof Reader06)
-						System.out.print(" ");
+					System.out.print(w.getID()+"\t"+w.getForm()+"\t"+w.getHead()+"\t"+w.getRel()+"\n");
+					output+=w.getForm();
+//					System.out.print(w.getForm());
+					if(r instanceof Reader06) {
+						output+=" ";
+//						System.out.print(" ");
+					}
 				}
-				System.out.print("\n");
+				System.out.print(output+"\n\n");
 			}
 		}
 	}
