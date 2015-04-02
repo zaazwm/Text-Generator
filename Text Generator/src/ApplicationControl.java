@@ -57,6 +57,7 @@ public class ApplicationControl {
 		}
 		
 		algo.savePattern();
+		//algo.postInitialization();
 		
 		boolean mark=true;
 		BufferedReader buf=new BufferedReader(new InputStreamReader(System.in, "UTF-8"));

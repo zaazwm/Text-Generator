@@ -72,6 +72,10 @@ public class Algorithm {
 		}
 	}
 	
+	public void postInitialization() {
+		sem = new DistributionalSemantics(sentenceList);
+	}
+	
 	//add father information to wordmap
 	public void addFather(Word w, String father, String tag, int distance) {
 		wordmap.put(indexmap.get(w.getForm()), w.addFather(father, tag, distance));
